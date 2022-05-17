@@ -5,11 +5,15 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.view.View
 import android.view.WindowInsets
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.view.MotionEventCompat
 import com.example.smartphoneshootingdemo.databinding.ActivityFullscreenBinding
 
 /**
@@ -161,5 +165,48 @@ class FullscreenActivity : AppCompatActivity() {
          * and a change of the status and navigation bar.
          */
         private const val UI_ANIMATION_DELAY = 300
+    }
+    private var mVelocityTracker: VelocityTracker? = null
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                // Reset the velocity tracker back to its initial state.
+                mVelocityTracker?.clear()
+                // If necessary retrieve a new VelocityTracker object to watch the
+                // velocity of a motion.
+                mVelocityTracker = mVelocityTracker ?: VelocityTracker.obtain()
+                // Add a user's movement to the tracker.
+                mVelocityTracker?.addMovement(event)
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                mVelocityTracker?.apply {
+                    val pointerId: Int = event.getPointerId(event.actionIndex)
+                    addMovement(event)
+                    // When you want to determine the velocity, call
+                    // computeCurrentVelociandroid:launchMode="singleTask" android:screenOrientation="portrait">ty(). Then call getXVelocity()
+                    // and getYVelocity() to retrieve the velocity for each pointer ID.
+                    computeCurrentVelocity(1000)
+                    // Log velocity of pixels per second
+                    // Best practice to use VelocityTrackerCompat where possible.
+                    Toast.makeText(this@FullscreenActivity, "CLICKED ;点击位置：（${
+                        MotionEventCompat.getX(
+                            event,
+                            pointerId
+                        )
+                    } ,${MotionEventCompat.getY(event, pointerId)}）; 移动位置：（${getXVelocity(pointerId)} ;${getYVelocity(pointerId)}）", Toast.LENGTH_SHORT).show()
+                    Log.d("", "X velocity: ${getXVelocity(pointerId)}")//X从左到右，Y从上到下
+                    Log.d("", "Y velocity: ${getYVelocity(pointerId)}")
+                }
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                // Return a VelocityTracker object back to be re-used by others.
+                mVelocityTracker?.recycle()
+                mVelocityTracker = null
+            }
+        }
+        return true
     }
 }
