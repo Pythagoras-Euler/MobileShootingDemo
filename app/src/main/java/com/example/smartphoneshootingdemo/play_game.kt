@@ -2,27 +2,30 @@ package com.example.smartphoneshootingdemo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.MotionEvent
-import android.view.VelocityTracker
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.view.MotionEventCompat
-import com.example.smartphoneshootingdemo.databinding.ActivityFullscreenBinding
+import com.example.smartphoneshootingdemo.databinding.ActivityPlayGameBinding
+import com.example.viewtest2.ViewDisplay.CircleCanvas
+import java.util.*
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class FullscreenActivity : AppCompatActivity() {
+class play_game : AppCompatActivity() {
 
-    private lateinit var binding: ActivityFullscreenBinding
+    private var mCircleCanvas //  定义一个画布类
+            : CircleCanvas? = null
+
+    private lateinit var binding: ActivityPlayGameBinding
     private lateinit var fullscreenContent: TextView
     private lateinit var fullscreenContentControls: LinearLayout
     private val hideHandler = Handler()
@@ -75,7 +78,7 @@ class FullscreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityFullscreenBinding.inflate(layoutInflater)
+        binding = ActivityPlayGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -91,8 +94,46 @@ class FullscreenActivity : AppCompatActivity() {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        binding.dummyButton.setOnTouchListener(delayHideTouchListener)
+        binding.dummyButton.setOnTouchListener(delayHideTouchListener);
+        val viewGroup = layoutInflater.inflate(R.layout.activity_play_game, null) as ViewGroup
+        mCircleCanvas = CircleCanvas(this) //  创建CircleCanvas（画布类）对象
+        //  将CircleCanvas对象添加到当前界面的视图中（两个按钮的下方）
+        viewGroup.addView(
+            mCircleCanvas,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, 2000)
+        )
+        setContentView(viewGroup)
     }
+
+    //  开始随机绘制圆形（第一个按钮的单击事件）
+    fun onClick_DrawRandomCircle(view: View?) {
+        val random = Random()
+        val randomX = (100 + random.nextInt(1000)).toFloat() //  随机生成圆心横坐标（100至200）
+        val randomY = (100 + random.nextInt(2000)).toFloat() //  随机生成圆心纵坐标（100至200）
+        val randomRadius = (20 + random.nextInt(400)).toFloat() //  随机生成圆的半径（20至60）
+        var randomColor = 0
+        //  产生0至100的随机数，若产生的随机数大于50，则画笔颜色为蓝色
+        randomColor = if (random.nextInt(100) > 50) {
+            Color.BLUE
+        } else {
+//  产生0至100的随机数，若产生的随机数大于50，则画笔颜色为红色
+            if (random.nextInt(100) > 50) Color.RED else Color.GREEN
+        }
+        val circleInfo = CircleCanvas.CircleInfo()
+        circleInfo.x = randomX
+        circleInfo.y = randomY
+        circleInfo.radius = randomRadius
+        circleInfo.color = randomColor
+        mCircleCanvas?.mCircleInfos?.add(circleInfo) //  将当前绘制的实心圆信息加到List对象中
+        mCircleCanvas!!.invalidate() //  使画布重绘
+    }
+
+    //  清空画布（第二个按钮的单击事件）
+    fun onClick_Clear(view: View?) {
+        mCircleCanvas?.mCircleInfos?.clear() //  清除绘制历史
+        mCircleCanvas!!.invalidate() //  使画布重绘
+    }
+
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
@@ -147,8 +188,6 @@ class FullscreenActivity : AppCompatActivity() {
         hideHandler.postDelayed(hideRunnable, delayMillis.toLong())
     }
 
-
-
     companion object {
         /**
          * Whether or not the system UI should be auto-hidden after
@@ -167,48 +206,5 @@ class FullscreenActivity : AppCompatActivity() {
          * and a change of the status and navigation bar.
          */
         private const val UI_ANIMATION_DELAY = 300
-    }
-    private var mVelocityTracker: VelocityTracker? = null
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-
-        when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                // Reset the velocity tracker back to its initial state.
-                mVelocityTracker?.clear()
-                // If necessary retrieve a new VelocityTracker object to watch the
-                // velocity of a motion.
-                mVelocityTracker = mVelocityTracker ?: VelocityTracker.obtain()
-                // Add a user's movement to the tracker.
-                mVelocityTracker?.addMovement(event)
-            }
-
-            MotionEvent.ACTION_MOVE -> {
-                mVelocityTracker?.apply {
-                    val pointerId: Int = event.getPointerId(event.actionIndex)
-                    addMovement(event)
-                    // When you want to determine the velocity, call
-                    // computeCurrentVelociandroid:launchMode="singleTask" android:screenOrientation="portrait">ty(). Then call getXVelocity()
-                    // and getYVelocity() to retrieve the velocity for each pointer ID.
-                    computeCurrentVelocity(1000)
-                    // Log velocity of pixels per second
-                    // Best practice to use VelocityTrackerCompat where possible.
-                    Toast.makeText(this@FullscreenActivity, "CLICKED ;点击位置：（${
-                        MotionEventCompat.getX(
-                            event,
-                            pointerId
-                        )
-                    } ,${MotionEventCompat.getY(event, pointerId)}）; 移动位置：（${getXVelocity(pointerId)} ;${getYVelocity(pointerId)}）", Toast.LENGTH_SHORT).show()
-                    Log.d("", "X velocity: ${getXVelocity(pointerId)}")//X从左到右，Y从上到下
-                    Log.d("", "Y velocity: ${getYVelocity(pointerId)}")
-                }
-            }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                // Return a VelocityTracker object back to be re-used by others.
-                mVelocityTracker?.recycle()
-                mVelocityTracker = null
-            }
-        }
-        return true
     }
 }
