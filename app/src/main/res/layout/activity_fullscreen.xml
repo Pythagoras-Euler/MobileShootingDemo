@@ -45,33 +45,36 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="onClick_Clear"
+                android:onClick="ClearCircle"
                 android:text="@string/dummy_button" />
 
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:foregroundGravity="center">
 
-            <Button
-                android:id="@+id/button2"
-                android:layout_width="94dp"
-                android:layout_height="56dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="24dp"
+            <TextView
+                android:id="@+id/currentScoreDisplay"
+                android:layout_width="285dp"
+                android:layout_height="61dp"
+                android:layout_marginStart="300dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginEnd="300dp"
+                android:layout_marginBottom="300dp"
                 android:gravity="center"
-                android:onClick="onClick_DrawRandomCircle"
-                android:text="START"
+                android:text="按任意键开始"
+                android:textColor="#FFC107"
+                android:textSize="20sp"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="START"
-                tools:visibility="visible" />
+                tools:text="当前分数" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </FrameLayout>
 
 </FrameLayout>

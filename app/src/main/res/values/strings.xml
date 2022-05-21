@@ -1,6 +1,8 @@
 <resources>
-    <string name="app_name">SmartphoneShootingDemo</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="app_name">点击训练</string>
+    <string name="dummy_button">重新开始</string>
+    <string name="dummy_content">按任意处\n开始游戏</string>
     <string name="title_activity_play_game">play_game</string>
+    <string name="background_init">按任意处开始</string>
+    <string name="score_display_init">按任意处开始</string>
 </resources>
