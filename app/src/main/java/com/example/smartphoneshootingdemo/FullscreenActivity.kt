@@ -25,7 +25,7 @@ import java.util.*
 import kotlin.math.sqrt
 
 
-//TODO  得分判定 宽度适配
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -128,7 +128,7 @@ class FullscreenActivity : AppCompatActivity() {
 
 
     }
-    fun getScreenWH(context: Context) {//TODO 设好宽高默认值或者调好从这个函数
+    fun getScreenWH(context: Context) {
         var displayMetrics = DisplayMetrics()
         //获取windowManager的方式，如果是activity，则可以通过activity.windowManager直接取得，即上边获取dpi中的那样
         var windowManager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
