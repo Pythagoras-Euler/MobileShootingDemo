@@ -151,13 +151,28 @@ class FullscreenActivity : AppCompatActivity() {
         
 
 //        Toast.makeText(this@FullscreenActivity, "CLICKED $randomX, $randomY", Toast.LENGTH_SHORT).show()
-        //  产生0至100的随机数，若产生的随机数大于50，则画笔颜色为蓝色
-        randomColor = if (random.nextInt(100) > 50) {
-            Color.BLUE
-        } else {
-//  产生0至100的随机数，若产生的随机数大于50，则画笔颜色为红色
-            if (random.nextInt(100) > 50) Color.RED else Color.GREEN
+//        //  产生0至100的随机数，若产生的随机数大于50，则画笔颜色为蓝色
+//        randomColor = if (random.nextInt(100) > 50) {
+//            Color.BLUE
+//        } else {
+////  产生0至100的随机数，若产生的随机数大于50，则画笔颜色为红色
+//            if (random.nextInt(100) > 50) Color.RED else Color.GREEN
+//        }
+
+        randomColor = when(random.nextInt(9))
+        {
+            0 -> R.color.red_circle
+            1 -> R.color.blue_circle
+            2 -> R.color.blue2_circle
+            3 -> R.color.cyan_circle
+            4 -> R.color.green_circle
+            5 -> R.color.pink_circle
+            6 -> R.color.purple_circle
+            7 -> R.color.yellow_circle
+            8 -> R.color.green2_circle
+            else -> {R.color.black_circle}
         }
+
 
         val circleInfo = CircleCanvas.CircleInfo()
         circleInfo.x = randomX

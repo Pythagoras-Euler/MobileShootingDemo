@@ -12,4 +12,15 @@
     <color name="light_blue_A200">#FF40C4FF</color>
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
+
+    <color name="blue_circle">#CD66CCFF</color><!--洛天依-->
+    <color name="blue2_circle">#CD0080FF</color><!--徵羽摩柯-->
+    <color name="red_circle">#CDEE0000</color><!--乐正绫-->
+    <color name="yellow_circle">#CDFFFF00</color><!--墨清弦、星尘-->
+    <color name="purple_circle">#CD9999FF</color><!--星尘-->
+    <color name="pink_circle">#CDEE82EE</color><!--心华-->
+    <color name="green_circle">#CD006666</color><!--乐正龙牙-->
+    <color name="green2_circle">#CD39C5BB</color><!--初音未来-->
+    <color name="cyan_circle">#CD00FFCC</color><!--言和-->
+    <color name="black_circle">#CD000000</color><!--默认-->
 </resources>
