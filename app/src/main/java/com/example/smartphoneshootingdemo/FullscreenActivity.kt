@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.graphics.Color
-import android.os.Build
-import android.os.Bundle
-import android.os.CountDownTimer
-import android.os.Handler
+import android.os.*
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
@@ -17,9 +14,16 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MotionEventCompat
+import com.example.smartphoneshootingdemo.data.BackgroundData
+import com.example.smartphoneshootingdemo.data.BackgroundData.distanceMemory
+import com.example.smartphoneshootingdemo.data.BackgroundData.getDistAverage
+import com.example.smartphoneshootingdemo.data.BackgroundData.getTimeAverage
+import com.example.smartphoneshootingdemo.data.BackgroundData.timeMemory
 import com.example.smartphoneshootingdemo.data.shooting_data.current_score
 import com.example.smartphoneshootingdemo.data.shooting_data.getter_score
+import com.example.smartphoneshootingdemo.data.shooting_data.getter_wrong
 import com.example.smartphoneshootingdemo.data.shooting_data.setter_score
+import com.example.smartphoneshootingdemo.data.shooting_data.setter_wrong
 import com.example.smartphoneshootingdemo.databinding.ActivityFullscreenBinding
 import com.example.viewtest2.ViewDisplay.CircleCanvas
 import java.lang.Math.abs
@@ -28,7 +32,7 @@ import kotlin.math.sqrt
 
 
 
-
+//TODO 平均用时 平均距离 十个倒计时
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -158,7 +162,8 @@ class FullscreenActivity : AppCompatActivity() {
         val random = Random()
         val randomX = (edge + random.nextInt(screenWX - 2 * edge)).toFloat() //  随机生成圆心横坐标（100至200）
         val randomY = (edge + random.nextInt(screenHY - 10 * edge).toFloat())//  随机生成圆心纵坐标（100至200）
-        val randomRadius = (40 + random.nextInt(100)).toFloat() //  随机生成圆的半径（20至60）
+//        val randomRadius = (40 + random.nextInt(100)).toFloat() //  随机生成圆的半径（20至60）
+        val randomRadius:Float = (40).toFloat()
         var randomColor = 0
 
 
@@ -171,32 +176,34 @@ class FullscreenActivity : AppCompatActivity() {
 //            if (random.nextInt(100) > 50) Color.RED else Color.GREEN
 //        }
 
-        randomColor = when (random.nextInt(9)) {
-            0 -> R.color.red_circle
-            1 -> R.color.blue_circle
-//            1-> 0xFF66CCFF.toInt()
-            2 -> R.color.blue2_circle
-            3 -> R.color.cyan_circle
-            4 -> R.color.green_circle
-            5 -> R.color.pink_circle
-            6 -> R.color.purple_circle
-            7 -> R.color.yellow_circle
-            8 -> R.color.green2_circle
-            else -> {
-                R.color.black_circle
-            }
-        }//TODO 颜色与显示不符，暂时不修了
-        var circleColor = "Circle Color"
-
-        Log.d(circleColor, randomColor.toString())
-        Log.d("compare", R.color.black_circle.toString())
+//        randomColor = when (random.nextInt(9)) {
+//            0 -> R.color.red_circle
+//            1 -> R.color.blue_circle
+////            1-> 0xFF66CCFF.toInt()
+//            2 -> R.color.blue2_circle
+//            3 -> R.color.cyan_circle
+//            4 -> R.color.green_circle
+//            5 -> R.color.pink_circle
+//            6 -> R.color.purple_circle
+//            7 -> R.color.yellow_circle
+//            8 -> R.color.green2_circle
+//            else -> {
+//                R.color.black_circle
+//            }
+//        }//TODO 颜色与显示不符，暂时不修了
+//        val circleColor = "Circle Color"
+//
+//        Log.d(circleColor, randomColor.toString())
+//        Log.d("compare", R.color.black_circle.toString())
 
         val circleInfo = CircleCanvas.CircleInfo()
         circleInfo.x = randomX
         circleInfo.y = randomY
 
         circleInfo.radius = randomRadius
-        circleInfo.color = randomColor
+//        circleInfo.color = randomColor
+//        circleInfo.color = R.color.red_circle
+        circleInfo.color = 0xCDEE0000.toInt()
 
         //获取状态栏高度
         val res = resources.getIdentifier("status_bar_height", "dimen", "android")
@@ -218,7 +225,28 @@ class FullscreenActivity : AppCompatActivity() {
         currentCirclePosY = circleInfo.y + statusBarHeight
         currentCircleLen = circleInfo.radius
 
+
+        val circleInfo2 = CircleCanvas.CircleInfo()
+        circleInfo2.x = circleInfo.x
+        circleInfo2.y = circleInfo.y
+        circleInfo2.radius = currentCircleLen * 2
+//        circleInfo2.color = R.color.yellow_circle
+        circleInfo2.color = 0xCDFFFF00.toInt()
+
+
+        val circleInfo3 = CircleCanvas.CircleInfo()
+        circleInfo3.x = circleInfo.x
+        circleInfo3.y = circleInfo.y
+        circleInfo3.radius = currentCircleLen * 3
+        circleInfo3.color = 0xCD66CCFF.toInt()
+
+
+        mCircleCanvas?.mCircleInfos?.add(circleInfo3) //  将当前绘制的实心圆信息加到List对象中
+
+
+        mCircleCanvas?.mCircleInfos?.add(circleInfo2) //  将当前绘制的实心圆信息加到List对象中
         mCircleCanvas?.mCircleInfos?.add(circleInfo) //  将当前绘制的实心圆信息加到List对象中
+
         mCircleCanvas!!.invalidate() //  使画布重绘
 
     }
@@ -246,13 +274,19 @@ class FullscreenActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     fun RestartTXT() {
         val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
-        background_score.text = "上次得分：${getter_score()}"
-        Toast.makeText(this@FullscreenActivity, "计数已清空 上次得分：${getter_score()}", Toast.LENGTH_SHORT)
+
+        val distanceAvgDisplay :String = String.format("%.5f",getDistAverage())
+        val timeAvgDisplay :String = String.format("%.3f",getTimeAverage())
+
+        background_score.text = "上次得分：${getter_score()}\nmiss次数：${getter_wrong()}"
+        Toast.makeText(this@FullscreenActivity, "计数已清空 上次得分：${getter_score()}, miss次数：${getter_wrong()}", Toast.LENGTH_SHORT)
             .show()
         setter_score(target_score = 0)
         val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
-        current_score.text = "目前得分：${getter_score()}"//按任意处开始
+//        current_score.text = "目前得分：${getter_score()}"//按任意处开始
+        current_score.text = "平均误差：${distanceAvgDisplay}\n总用时：${timeAvgDisplay}"
 //        countDownTXT(30000,1000)
+
     }
 
     override fun onResume() {
@@ -340,18 +374,29 @@ class FullscreenActivity : AppCompatActivity() {
         circlePosX: Float,
         circlePosY: Float,
         circleLen: Float
-    ): Boolean {//后续更新可以把返回值改为Int以支持多重分数计算，或者分数处理就在这里进行也可以
+    ): Int {//后续更新可以把返回值改为Int以支持多重分数计算，或者分数处理就在这里进行也可以
         val distX = abs(touchPosX - circlePosX)
         val distY = abs(touchPosY - circlePosY)
         val dist = sqrt(distX.toDouble() * distX.toDouble() + distY.toDouble() * distY.toDouble())
 
 //        Toast.makeText(this@FullscreenActivity, "计数已清空 ${getter_score()}", Toast.LENGTH_SHORT).show()
 
-        if (dist <= circleLen) {
-//            setter_score(change_score = 1);//计分放到外面，结构先留着
-            return true
-        } else {
-            return false
+        if (dist <= circleLen) {//计分放到外面
+            distanceMemory.add(dist)
+            return 3
+        } else if(dist <= 2 * circleLen)
+        {
+            distanceMemory.add(dist)
+            return 2
+        }
+        else if( dist <= 3 * circleLen)
+        {
+            distanceMemory.add(dist)
+            return 1
+        }
+        else
+        {
+            return 0
         }
     }
 
@@ -375,16 +420,34 @@ class FullscreenActivity : AppCompatActivity() {
                 val x = event.x.toFloat()
                 val y = event.y.toFloat()
 
-                if (checkInput(x, y, currentCirclePosX, currentCirclePosY, currentCircleLen)) {
-                    ClearCircle()
-                    DrawRandomCircle()
-                    setter_score(change_score = 1)
-                } else {
-                    ClearCircle()
-                    DrawRandomCircle()
+               when(checkInput(x, y, currentCirclePosX, currentCirclePosY, currentCircleLen)) {
+                   1 -> {
+                       ClearCircle()
+                       DrawRandomCircle()
+                       setter_score(change_score = 1)
+                   }
+
+                   2 -> {
+                       ClearCircle()
+                       DrawRandomCircle()
+                       setter_score(change_score = 2)
+                   }
+
+                   3 -> {
+                       ClearCircle()
+                       DrawRandomCircle()
+                       setter_score(change_score = 3)
+                   }
+
+                   else -> {
+                       ClearCircle()
+                       DrawRandomCircle()
+                       setter_wrong(change_score = 1)
 //                    RestartTXT()//TODO 失败惩罚的事回头再改，先交再说 bug来源为初始化
-                }
+                   }
 //                countDownTXT(8000,1000)
+               }
+                timeMemory.add( SystemClock.uptimeMillis().toDouble() )
 
                 timerTXT.cancel()
                 timerTXT.start()
@@ -420,7 +483,7 @@ class FullscreenActivity : AppCompatActivity() {
 //        val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
 //        current_score.text = "目前得分：${getter_score()}"
         val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
-        background_score.text = "目前得分：${getter_score()}"
+        background_score.text = "目前得分：${getter_score()} \n Miss次数： ${getter_wrong()}"
 
 
         return true
@@ -432,8 +495,8 @@ class FullscreenActivity : AppCompatActivity() {
         override fun onTick(millisUntilFinished: Long) {
             val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
             current_score.text = "剩余时间: " + millisUntilFinished / 1000
-            val restart_Button: TextView = findViewById<TextView>(R.id.dummy_button)
-            restart_Button.setClickable(false);
+//            val restart_Button: TextView = findViewById<TextView>(R.id.dummy_button)
+//            restart_Button.setClickable(false);
 
 
         }
@@ -451,8 +514,8 @@ class FullscreenActivity : AppCompatActivity() {
             override fun onTick(millisUntilFinished: Long) {
                 val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
                 current_score.text = "剩余时间: " + millisUntilFinished / 1000
-                val restart_Button: TextView = findViewById<TextView>(R.id.dummy_button)
-                restart_Button.setClickable(false);
+//                val restart_Button: TextView = findViewById<TextView>(R.id.dummy_button)
+//                restart_Button.setClickable(false);
 
 
             }

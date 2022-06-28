@@ -2,7 +2,7 @@ package com.example.smartphoneshootingdemo.data
 
 object shooting_data{
     var current_score = 0
-    var current_wrong_time = 0
+    var current_wrong_time = -1
 
     fun getter_score(): Int {
         return current_score
@@ -21,17 +21,23 @@ object shooting_data{
         }
     }
 
-    public fun setter_wrong(change_score: Int = 0, target_score : Int = -1):Boolean
+    fun getter_wrong():Int
     {
-        if (target_score == -1) {
-            current_score += change_score
+        return current_wrong_time
+
+    }
+
+
+    public fun setter_wrong(change_score: Int = 0):Boolean
+    {
+            current_wrong_time += change_score
             return true
-        }
-        else
-        {
-            current_score = target_score
-            return true
-        }
+    }
+
+    public fun reset_wrong() : Boolean
+    {
+        current_wrong_time = 0;
+        return true
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.viewtest2.ViewDisplay
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -28,6 +29,7 @@ class CircleCanvas(context: Context?) : View(context) {
     }
 
     //  当画布重绘时调用该方法，Canvas表示画布对象，可以在该对象上绘制基本的图形
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         //  根据保存的绘制历史重绘所有的实心圆
