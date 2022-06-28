@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
@@ -16,6 +17,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MotionEventCompat
+import com.example.smartphoneshootingdemo.data.shooting_data.current_score
 import com.example.smartphoneshootingdemo.data.shooting_data.getter_score
 import com.example.smartphoneshootingdemo.data.shooting_data.setter_score
 import com.example.smartphoneshootingdemo.databinding.ActivityFullscreenBinding
@@ -26,11 +28,17 @@ import kotlin.math.sqrt
 
 
 
+
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 class FullscreenActivity : AppCompatActivity() {
+
+    var FullTime:Long = 3000
+    val TimeStep:Long = 1000
+
 
     private var mCircleCanvas //  定义一个画布类
             : CircleCanvas? = null
@@ -67,9 +75,9 @@ class FullscreenActivity : AppCompatActivity() {
 
     private val hideRunnable = Runnable { hide() }
 
-    var currentCirclePosX :Float = 0.toFloat()
-    var currentCirclePosY :Float = 0.toFloat()
-    var currentCircleLen : Float = 0.toFloat()
+    var currentCirclePosX: Float = 0.toFloat()
+    var currentCirclePosY: Float = 0.toFloat()
+    var currentCircleLen: Float = 0.toFloat()
 
     var screenWX = 0
     var screenHY = 0
@@ -121,17 +129,22 @@ class FullscreenActivity : AppCompatActivity() {
         //  将CircleCanvas对象添加到当前界面的视图中（两个按钮的下方）
         viewGroup.addView(
             mCircleCanvas,
-            ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT)
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.FILL_PARENT
+            )
         )
         getScreenWH(this)
         setContentView(viewGroup)
 
 
     }
+
     fun getScreenWH(context: Context) {
         var displayMetrics = DisplayMetrics()
         //获取windowManager的方式，如果是activity，则可以通过activity.windowManager直接取得，即上边获取dpi中的那样
-        var windowManager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        var windowManager: WindowManager =
+            context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         screenWX = displayMetrics.widthPixels
         screenHY = displayMetrics.heightPixels
@@ -143,12 +156,11 @@ class FullscreenActivity : AppCompatActivity() {
     fun DrawRandomCircle() {
         var edge = 20
         val random = Random()
-        val randomX = (edge + random.nextInt(screenWX - 2* edge)).toFloat() //  随机生成圆心横坐标（100至200）
-        val randomY = (edge + random.nextInt(screenHY - 10* edge).toFloat() )//  随机生成圆心纵坐标（100至200）
+        val randomX = (edge + random.nextInt(screenWX - 2 * edge)).toFloat() //  随机生成圆心横坐标（100至200）
+        val randomY = (edge + random.nextInt(screenHY - 10 * edge).toFloat())//  随机生成圆心纵坐标（100至200）
         val randomRadius = (40 + random.nextInt(100)).toFloat() //  随机生成圆的半径（20至60）
         var randomColor = 0
 
-        
 
 //        Toast.makeText(this@FullscreenActivity, "CLICKED $randomX, $randomY", Toast.LENGTH_SHORT).show()
 //        //  产生0至100的随机数，若产生的随机数大于50，则画笔颜色为蓝色
@@ -159,10 +171,10 @@ class FullscreenActivity : AppCompatActivity() {
 //            if (random.nextInt(100) > 50) Color.RED else Color.GREEN
 //        }
 
-        randomColor = when(random.nextInt(9))
-        {
+        randomColor = when (random.nextInt(9)) {
             0 -> R.color.red_circle
             1 -> R.color.blue_circle
+//            1-> 0xFF66CCFF.toInt()
             2 -> R.color.blue2_circle
             3 -> R.color.cyan_circle
             4 -> R.color.green_circle
@@ -170,9 +182,14 @@ class FullscreenActivity : AppCompatActivity() {
             6 -> R.color.purple_circle
             7 -> R.color.yellow_circle
             8 -> R.color.green2_circle
-            else -> {R.color.black_circle}
-        }
+            else -> {
+                R.color.black_circle
+            }
+        }//TODO 颜色与显示不符，暂时不修了
+        var circleColor = "Circle Color"
 
+        Log.d(circleColor, randomColor.toString())
+        Log.d("compare", R.color.black_circle.toString())
 
         val circleInfo = CircleCanvas.CircleInfo()
         circleInfo.x = randomX
@@ -182,16 +199,19 @@ class FullscreenActivity : AppCompatActivity() {
         circleInfo.color = randomColor
 
         //获取状态栏高度
-        val res = resources.getIdentifier("status_bar_height","dimen","android")
+        val res = resources.getIdentifier("status_bar_height", "dimen", "android")
         var statusBarHeight = 0
         if (res > 0) {
             statusBarHeight = getResources().getDimensionPixelSize(res)
         }
         //获取actionBar
-        val tv =  TypedValue()
+        val tv = TypedValue()
         var actionBarHeight = 0
         if (this.theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, this.resources.displayMetrics)   //   高度问题感谢CSDN博主  版权声明：本文为CSDN博主「poegeeon」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。 原文链接：https://blog.csdn.net/poegeeon/article/details/118947225
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(
+                tv.data,
+                this.resources.displayMetrics
+            )   //   高度问题感谢CSDN博主  版权声明：本文为CSDN博主「poegeeon」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。 原文链接：https://blog.csdn.net/poegeeon/article/details/118947225
         }
 
         currentCirclePosX = circleInfo.x
@@ -220,16 +240,19 @@ class FullscreenActivity : AppCompatActivity() {
     fun ClearCircle(view: View) {//按钮清零
         ClearCircle()
         RestartTXT()
+
     }
 
     @SuppressLint("SetTextI18n")
-    fun RestartTXT(){
+    fun RestartTXT() {
         val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
         background_score.text = "上次得分：${getter_score()}"
-        Toast.makeText(this@FullscreenActivity, "计数已清空 上次得分：${getter_score()}", Toast.LENGTH_SHORT).show()
-        setter_score( target_score = 0 )
+        Toast.makeText(this@FullscreenActivity, "计数已清空 上次得分：${getter_score()}", Toast.LENGTH_SHORT)
+            .show()
+        setter_score(target_score = 0)
         val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
         current_score.text = "目前得分：${getter_score()}"//按任意处开始
+//        countDownTXT(30000,1000)
     }
 
     override fun onResume() {
@@ -291,7 +314,6 @@ class FullscreenActivity : AppCompatActivity() {
     }
 
 
-
     companion object {
         /**
          * Whether or not the system UI should be auto-hidden after
@@ -312,24 +334,26 @@ class FullscreenActivity : AppCompatActivity() {
         private const val UI_ANIMATION_DELAY = 300
     }
 
-    fun checkInput(touchPosX:Float, touchPosY: Float, circlePosX: Float, circlePosY: Float, circleLen:Float): Boolean {//后续更新可以把返回值改为Int以支持多重分数计算，或者分数处理就在这里进行也可以
+    fun checkInput(
+        touchPosX: Float,
+        touchPosY: Float,
+        circlePosX: Float,
+        circlePosY: Float,
+        circleLen: Float
+    ): Boolean {//后续更新可以把返回值改为Int以支持多重分数计算，或者分数处理就在这里进行也可以
         val distX = abs(touchPosX - circlePosX)
         val distY = abs(touchPosY - circlePosY)
         val dist = sqrt(distX.toDouble() * distX.toDouble() + distY.toDouble() * distY.toDouble())
 
 //        Toast.makeText(this@FullscreenActivity, "计数已清空 ${getter_score()}", Toast.LENGTH_SHORT).show()
 
-        if(dist <= circleLen)
-        {
+        if (dist <= circleLen) {
 //            setter_score(change_score = 1);//计分放到外面，结构先留着
             return true
-        }
-        else
-        {
+        } else {
             return false
         }
     }
-
 
 
     private var mVelocityTracker: VelocityTracker? = null
@@ -351,17 +375,20 @@ class FullscreenActivity : AppCompatActivity() {
                 val x = event.x.toFloat()
                 val y = event.y.toFloat()
 
-                if(checkInput(x,y,currentCirclePosX,currentCirclePosY,currentCircleLen)){
+                if (checkInput(x, y, currentCirclePosX, currentCirclePosY, currentCircleLen)) {
                     ClearCircle()
                     DrawRandomCircle()
                     setter_score(change_score = 1)
-                }
-                else
-                {
+                } else {
                     ClearCircle()
                     DrawRandomCircle()
 //                    RestartTXT()//TODO 失败惩罚的事回头再改，先交再说 bug来源为初始化
                 }
+//                countDownTXT(8000,1000)
+
+                timerTXT.cancel()
+                timerTXT.start()
+
             }
 
 //            MotionEvent.ACTION_MOVE -> {
@@ -372,8 +399,8 @@ class FullscreenActivity : AppCompatActivity() {
 //                    // computeCurrentVelociandroid:launchMode="singleTask" android:screenOrientation="portrait">ty(). Then call getXVelocity()
 //                    // and getYVelocity() to retrieve the velocity for each pointer ID.
 //                    computeCurrentVelocity(1000)
-                    // Log velocity of pixels per second
-                    // Best practice to use VelocityTrackerCompat where possible.
+            // Log velocity of pixels per second
+            // Best practice to use VelocityTrackerCompat where possible.
 //                    Toast.makeText(this@FullscreenActivity, "CLICKED ;点击位置：（${MotionEventCompat.getX(event,pointerId)} ,${MotionEventCompat.getY(event, pointerId)}）; 移动位置：（${getXVelocity(pointerId)} ;${getYVelocity(pointerId)}）", Toast.LENGTH_SHORT).show()
 //                    Log.d("", "X velocity: ${getXVelocity(pointerId)}")//X从左到右，Y从上到下
 //                    Log.d("", "Y velocity: ${getYVelocity(pointerId)}")
@@ -390,16 +417,57 @@ class FullscreenActivity : AppCompatActivity() {
 
 //        setter_score(change_score = 1)
 
-        val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
-        current_score.text = "目前得分：${getter_score()}"
+//        val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
+//        current_score.text = "目前得分：${getter_score()}"
         val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
         background_score.text = "目前得分：${getter_score()}"
 
 
         return true
     }
+
+        val timerTXT = object : CountDownTimer(FullTime, TimeStep) {
+
+        @SuppressLint("SetTextI18n")
+        override fun onTick(millisUntilFinished: Long) {
+            val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
+            current_score.text = "剩余时间: " + millisUntilFinished / 1000
+            val restart_Button: TextView = findViewById<TextView>(R.id.dummy_button)
+            restart_Button.setClickable(false);
+
+
+        }
+
+        override fun onFinish() {
+            RestartTXT()
+            ClearCircle()
+        }
+    }
+    private fun countDownTXT(FullTIme : Long, TimeStep : Long) {
+
+        object : CountDownTimer(FullTIme, TimeStep) {
+
+            @SuppressLint("SetTextI18n")
+            override fun onTick(millisUntilFinished: Long) {
+                val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
+                current_score.text = "剩余时间: " + millisUntilFinished / 1000
+                val restart_Button: TextView = findViewById<TextView>(R.id.dummy_button)
+                restart_Button.setClickable(false);
+
+
+            }
+
+            override fun onFinish() {
+                RestartTXT()
+                ClearCircle()
+            }
+        }.start()
+
+    }
+
 }
 
-interface ActivityFullscreenBinding {
+    interface ActivityFullscreenBinding {
 
-}
+    }
+
