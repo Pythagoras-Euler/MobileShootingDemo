@@ -12,17 +12,19 @@ import android.view.View
 import android.view.WindowInsets
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.example.smartphoneshootingdemo.FullscreenActivity
+import android.widget.Toast
 import com.example.smartphoneshootingdemo.R
-import com.example.smartphoneshootingdemo.databinding.ActivityStartMenuBinding
+import com.example.smartphoneshootingdemo.data.BackgroundData
+import com.example.smartphoneshootingdemo.data.shooting_data
+import com.example.smartphoneshootingdemo.databinding.ActivityRestartMenuBinding
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class startMenu : AppCompatActivity() {
+class restartMenu : AppCompatActivity() {
 
-    private lateinit var binding: ActivityStartMenuBinding
+    private lateinit var binding: ActivityRestartMenuBinding
     private lateinit var fullscreenContent: TextView
     private lateinit var fullscreenContentControls: LinearLayout
     private val hideHandler = Handler()
@@ -52,13 +54,13 @@ class startMenu : AppCompatActivity() {
     }
     private var isFullscreen: Boolean = false
 
-    private val hideRunnable = Runnable { hide() }
+//    private val hideRunnable = Runnable { hide() }
 
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
+//    /**
+//     * Touch listener to use for in-layout UI controls to delay hiding the
+//     * system UI. This is to prevent the jarring behavior of controls going away
+//     * while interacting with activity UI.
+//     */
 //    private val delayHideTouchListener = View.OnTouchListener { view, motionEvent ->
 //        when (motionEvent.action) {
 //            MotionEvent.ACTION_DOWN -> if (AUTO_HIDE) {
@@ -71,16 +73,17 @@ class startMenu : AppCompatActivity() {
 //        false
 //    }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//设置屏幕为横屏, 设置后会锁定方向
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE//设置屏幕为横屏, 设置后会锁定方向
 
-        binding = ActivityStartMenuBinding.inflate(layoutInflater)
+        binding = ActivityRestartMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
 
         isFullscreen = true
 
@@ -94,11 +97,39 @@ class startMenu : AppCompatActivity() {
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
 //        binding.dummyButton.setOnTouchListener(delayHideTouchListener)
+
+        //接收传值
+        var bundle:Bundle?=intent.extras
+
+            var lastScore:Int?=bundle!!.getInt("last Score")
+            var lastWrong:Int?=bundle!!.getInt("last Wrong")
+            var distAvg:Double?=bundle!!.getDouble("distance Average")
+            var timeAvg:Double?=bundle!!.getDouble("time Average")
+
+//        intent.putExtra("last Score", lastScore)
+//        intent.putExtra("last Wrong", lastWrong)
+//        intent.putExtra("distance Average", distAvg)
+//        intent.putExtra("time Average", timeAvg)
+
+        val distanceAvgDisplay :String = String.format("%.5f",distAvg)
+        val timeAvgDisplay :String = String.format("%.3f", timeAvg)
+
+
+        val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
+        background_score.text = "上次得分：${lastScore}\nmiss次数：${lastWrong}"
+        Toast.makeText(this , "计数已清空 上次得分：${shooting_data.getter_score()}, miss次数：${shooting_data.getter_wrong()}", Toast.LENGTH_SHORT)
+            .show()
+        shooting_data.setter_score(target_score = 0)
+        val current_score: TextView = findViewById<TextView>(R.id.data_display)
+//        current_score.text = "目前得分：${getter_score()}"//按任意处开始
+        current_score.text = "平均误差：${distanceAvgDisplay}\n总用时：${timeAvgDisplay}"
+
     }
 
     override fun onResume() {
         super.onResume()
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//设置屏幕为横屏, 设置后会锁定方向
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)//设置屏幕为横屏, 设置后会锁定方向
+
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -118,16 +149,16 @@ class startMenu : AppCompatActivity() {
 //        }
 //    }
 
-    private fun hide() {
-        // Hide UI first
-        supportActionBar?.hide()
-        fullscreenContentControls.visibility = View.GONE
-        isFullscreen = false
-
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        hideHandler.removeCallbacks(showPart2Runnable)
-        hideHandler.postDelayed(hidePart2Runnable, UI_ANIMATION_DELAY.toLong())
-    }
+//    private fun hide() {
+//        // Hide UI first
+//        supportActionBar?.hide()
+//        fullscreenContentControls.visibility = View.GONE
+//        isFullscreen = false
+//
+//        // Schedule a runnable to remove the status and navigation bar after a delay
+//        hideHandler.removeCallbacks(showPart2Runnable)
+//        hideHandler.postDelayed(hidePart2Runnable, UI_ANIMATION_DELAY.toLong())
+//    }
 
     private fun show() {
         // Show the system bar
@@ -143,6 +174,15 @@ class startMenu : AppCompatActivity() {
         // Schedule a runnable to display UI elements after a delay
         hideHandler.removeCallbacks(hidePart2Runnable)
         hideHandler.postDelayed(showPart2Runnable, UI_ANIMATION_DELAY.toLong())
+    }
+
+    public fun restartButtonClicked(view: View){
+        toStartMenu()
+    }
+
+    private fun toStartMenu(){
+        var intent = Intent(this, startMenu::class.java)
+        startActivity(intent)
     }
 
     /**
@@ -173,15 +213,4 @@ class startMenu : AppCompatActivity() {
          */
         private const val UI_ANIMATION_DELAY = 300
     }
-
-    public fun startButtonClicked(view: View) {
-        toMain()
-    }
-
-    private fun toMain()
-    {
-        var intent = Intent(this, FullscreenActivity::class.java)
-        startActivity(intent)
-    }
-
 }
