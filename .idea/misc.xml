@@ -8,7 +8,10 @@
         <entry key="..\:/MyAndroidAPP/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.1" />
         <entry key="..\:/MyAndroidAPP/app/src/main/res/layout/activity_fullscreen.xml" value="0.3333333333333333" />
         <entry key="..\:/MyAndroidAPP/app/src/main/res/layout/activity_play_game.xml" value="0.1" />
+        <entry key="..\:/MyAndroidAPP/app/src/main/res/layout/activity_start.xml" value="0.13541666666666666" />
+        <entry key="..\:/MyAndroidAPP/app/src/main/res/layout/activity_start_menu.xml" value="0.1265625" />
         <entry key="..\:/MyAndroidAPP/app/src/main/res/layout/play_game.xml" value="0.1" />
+        <entry key="..\:/MyAndroidAPP/app/src/main/res/layout/start_menu.xml" value="0.1359375" />
         <entry key="..\:/MyAndroidAPP/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.12" />
         <entry key="..\:/MyAndroidAPP/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1" />
       </map>
