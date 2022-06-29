@@ -5,7 +5,7 @@ import java.util.ArrayList
 object BackgroundData {
 //TODO bug:时间计算未清零，导致总用时不准确
 
-        public val distanceMemory:MutableList<Double>  = ArrayList()
+        public var distanceMemory:MutableList<Double>  = ArrayList()
         public var timeMemory:MutableList<Double> = ArrayList()
 
     public fun getDistAverage() : Double{
@@ -15,6 +15,14 @@ object BackgroundData {
     public fun getTimeAverage():Double{
 //        return timeMemory.average()
         return (timeMemory.max() - timeMemory.min())/1000
+    }
+
+    public fun resetDistAvg(){
+        distanceMemory = ArrayList()
+    }
+
+    public fun resetTimeAvg(){
+        timeMemory = ArrayList()
     }
 
 }

@@ -21,6 +21,8 @@ import com.example.smartphoneshootingdemo.data.BackgroundData
 import com.example.smartphoneshootingdemo.data.BackgroundData.distanceMemory
 import com.example.smartphoneshootingdemo.data.BackgroundData.getDistAverage
 import com.example.smartphoneshootingdemo.data.BackgroundData.getTimeAverage
+import com.example.smartphoneshootingdemo.data.BackgroundData.resetDistAvg
+import com.example.smartphoneshootingdemo.data.BackgroundData.resetTimeAvg
 import com.example.smartphoneshootingdemo.data.BackgroundData.timeMemory
 import com.example.smartphoneshootingdemo.data.shooting_data.current_score
 import com.example.smartphoneshootingdemo.data.shooting_data.getter_num
@@ -51,7 +53,7 @@ import kotlin.math.sqrt
  */
 class FullscreenActivity : AppCompatActivity() {
 
-    var FullTime:Long = 3000
+    var FullTime:Long = 30000
     val TimeStep:Long = 1000
     val TargetStep: Int = 10
 
@@ -158,6 +160,8 @@ class FullscreenActivity : AppCompatActivity() {
         getScreenWH(this)
         setContentView(viewGroup)
 
+        timerTXT.start()
+        action(1.toFloat(),1.toFloat())
 
     }
 
@@ -288,7 +292,7 @@ class FullscreenActivity : AppCompatActivity() {
         RestartTXT()
 //        setter_score(target_score = 0)
 
-        timerTXT.cancel()
+//        timerTXT.cancel()
     }
 
 
@@ -319,10 +323,14 @@ class FullscreenActivity : AppCompatActivity() {
 //        current_score.text = "目前得分：${getter_score()}"//按任意处开始
         current_score.text = "平均误差：${distanceAvgDisplay}\n总用时：${timeAvgDisplay}"
 //        countDownTXT(30000,1000)
+
+        timerTXT.cancel()
         toRestartMenu()
 
         reset_num()
         reset_wrong()
+        resetDistAvg()
+        resetTimeAvg()
 
     }
 
@@ -437,10 +445,67 @@ class FullscreenActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    fun action(x:Float, y:Float){
+        if (getter_num() >= TargetStep)
+        {
+            restart()
+        }else {
+
+            when (checkInput(
+                x,
+                y,
+                currentCirclePosX,
+                currentCirclePosY,
+                currentCircleLen
+            )) {
+                1 -> {
+                    ClearCircle()
+                    DrawRandomCircle()
+                    setter_score(change_score = 1)
+                    setter_num(change_num = 1)
+                }
+
+                2 -> {
+                    ClearCircle()
+                    DrawRandomCircle()
+                    setter_score(change_score = 2)
+                    setter_num(change_num = 1)
+                }
+
+                3 -> {
+                    ClearCircle()
+                    DrawRandomCircle()
+                    setter_score(change_score = 3)
+                    setter_num(change_num = 1)
+                }
+
+                else -> {
+                    ClearCircle()
+                    DrawRandomCircle()
+                    setter_wrong(change_score = 1)
+//                    RestartTXT()//TODO 失败惩罚的事回头再改，先交再说 bug来源为初始化
+                }
+//                countDownTXT(8000,1000)
+            }
+
+
+            timeMemory.add(SystemClock.uptimeMillis().toDouble())
+
+//                    timerTXT.cancel()
+//                    timerTXT.start()
+        }
+
+        if(getter_wrong() != -1) {
+            val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
+            background_score.text = "目前得分：${getter_score()} \n Miss次数： ${getter_wrong()}"
+        }
+    }
+
 
     private var mVelocityTracker: VelocityTracker? = null
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "Recycle")
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         when (event.actionMasked) {
@@ -456,58 +521,8 @@ class FullscreenActivity : AppCompatActivity() {
 
                 val x = event.x.toFloat()
                 val y = event.y.toFloat()
-                if (getter_num() >= TargetStep)
-                {
-                    restart()
-                }else {
 
-                    when (checkInput(
-                        x,
-                        y,
-                        currentCirclePosX,
-                        currentCirclePosY,
-                        currentCircleLen
-                    )) {
-                        1 -> {
-                            ClearCircle()
-                            DrawRandomCircle()
-                            setter_score(change_score = 1)
-                            setter_num(change_num = 1)
-                        }
-
-                        2 -> {
-                            ClearCircle()
-                            DrawRandomCircle()
-                            setter_score(change_score = 2)
-                            setter_num(change_num = 1)
-                        }
-
-                        3 -> {
-                            ClearCircle()
-                            DrawRandomCircle()
-                            setter_score(change_score = 3)
-                            setter_num(change_num = 1)
-                        }
-
-                        else -> {
-                            ClearCircle()
-                            DrawRandomCircle()
-                            setter_wrong(change_score = 1)
-//                    RestartTXT()//TODO 失败惩罚的事回头再改，先交再说 bug来源为初始化
-                        }
-//                countDownTXT(8000,1000)
-                    }
-
-
-                    timeMemory.add(SystemClock.uptimeMillis().toDouble())
-
-                    timerTXT.cancel()
-                    timerTXT.start()
-                }
-                if(getter_wrong() != -1) {
-                    val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
-                    background_score.text = "目前得分：${getter_score()} \n Miss次数： ${getter_wrong()}"
-                }
+                action(x,y)
             }
 
 //            MotionEvent.ACTION_MOVE -> {

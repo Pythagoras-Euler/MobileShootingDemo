@@ -6,6 +6,6 @@
     <string name="title_activity_play_game">play_game</string>
     <string name="background_init">按任意处开始</string>
     <string name="score_display_init">按任意处开始</string>
-    <string name="title_activity_start_menu">startMenu</string>
-    <string name="title_activity_restart_menu">restartMenu</string>
+    <string name="title_activity_start_menu">开始游戏</string>
+    <string name="title_activity_restart_menu">重新开始</string>
 </resources>
