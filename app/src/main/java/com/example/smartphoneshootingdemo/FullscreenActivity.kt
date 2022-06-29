@@ -20,8 +20,12 @@ import com.example.smartphoneshootingdemo.data.BackgroundData.getDistAverage
 import com.example.smartphoneshootingdemo.data.BackgroundData.getTimeAverage
 import com.example.smartphoneshootingdemo.data.BackgroundData.timeMemory
 import com.example.smartphoneshootingdemo.data.shooting_data.current_score
+import com.example.smartphoneshootingdemo.data.shooting_data.getter_num
 import com.example.smartphoneshootingdemo.data.shooting_data.getter_score
 import com.example.smartphoneshootingdemo.data.shooting_data.getter_wrong
+import com.example.smartphoneshootingdemo.data.shooting_data.reset_num
+import com.example.smartphoneshootingdemo.data.shooting_data.reset_wrong
+import com.example.smartphoneshootingdemo.data.shooting_data.setter_num
 import com.example.smartphoneshootingdemo.data.shooting_data.setter_score
 import com.example.smartphoneshootingdemo.data.shooting_data.setter_wrong
 import com.example.smartphoneshootingdemo.databinding.ActivityFullscreenBinding
@@ -42,6 +46,7 @@ class FullscreenActivity : AppCompatActivity() {
 
     var FullTime:Long = 3000
     val TimeStep:Long = 1000
+    val TargetStep: Int = 10
 
 
     private var mCircleCanvas //  定义一个画布类
@@ -264,6 +269,17 @@ class FullscreenActivity : AppCompatActivity() {
 //        Toast.makeText(this@FullscreenActivity, "计数已清空", Toast.LENGTH_SHORT).show()
     }
 
+    fun restart()
+    {
+        timerTXT.cancel()
+        ClearCircle()
+        RestartTXT()
+//        setter_score(target_score = 0)
+
+        timerTXT.cancel()
+    }
+
+
     @SuppressLint("SetTextI18n", "CutPasteId")
     fun ClearCircle(view: View) {//按钮清零
         ClearCircle()
@@ -286,6 +302,8 @@ class FullscreenActivity : AppCompatActivity() {
 //        current_score.text = "目前得分：${getter_score()}"//按任意处开始
         current_score.text = "平均误差：${distanceAvgDisplay}\n总用时：${timeAvgDisplay}"
 //        countDownTXT(30000,1000)
+        reset_num()
+        reset_wrong()
 
     }
 
@@ -419,39 +437,58 @@ class FullscreenActivity : AppCompatActivity() {
 
                 val x = event.x.toFloat()
                 val y = event.y.toFloat()
+                if (getter_num() >= TargetStep)
+                {
+                    restart()
+                }else {
 
-               when(checkInput(x, y, currentCirclePosX, currentCirclePosY, currentCircleLen)) {
-                   1 -> {
-                       ClearCircle()
-                       DrawRandomCircle()
-                       setter_score(change_score = 1)
-                   }
+                    when (checkInput(
+                        x,
+                        y,
+                        currentCirclePosX,
+                        currentCirclePosY,
+                        currentCircleLen
+                    )) {
+                        1 -> {
+                            ClearCircle()
+                            DrawRandomCircle()
+                            setter_score(change_score = 1)
+                            setter_num(change_num = 1)
+                        }
 
-                   2 -> {
-                       ClearCircle()
-                       DrawRandomCircle()
-                       setter_score(change_score = 2)
-                   }
+                        2 -> {
+                            ClearCircle()
+                            DrawRandomCircle()
+                            setter_score(change_score = 2)
+                            setter_num(change_num = 1)
+                        }
 
-                   3 -> {
-                       ClearCircle()
-                       DrawRandomCircle()
-                       setter_score(change_score = 3)
-                   }
+                        3 -> {
+                            ClearCircle()
+                            DrawRandomCircle()
+                            setter_score(change_score = 3)
+                            setter_num(change_num = 1)
+                        }
 
-                   else -> {
-                       ClearCircle()
-                       DrawRandomCircle()
-                       setter_wrong(change_score = 1)
+                        else -> {
+                            ClearCircle()
+                            DrawRandomCircle()
+                            setter_wrong(change_score = 1)
 //                    RestartTXT()//TODO 失败惩罚的事回头再改，先交再说 bug来源为初始化
-                   }
+                        }
 //                countDownTXT(8000,1000)
-               }
-                timeMemory.add( SystemClock.uptimeMillis().toDouble() )
+                    }
 
-                timerTXT.cancel()
-                timerTXT.start()
 
+                    timeMemory.add(SystemClock.uptimeMillis().toDouble())
+
+                    timerTXT.cancel()
+                    timerTXT.start()
+                }
+                if(getter_wrong() != -1) {
+                    val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
+                    background_score.text = "目前得分：${getter_score()} \n Miss次数： ${getter_wrong()}"
+                }
             }
 
 //            MotionEvent.ACTION_MOVE -> {
@@ -476,14 +513,14 @@ class FullscreenActivity : AppCompatActivity() {
 //                mVelocityTracker?.recycle()
 //                mVelocityTracker = null
 //            }
+
         }
 
 //        setter_score(change_score = 1)
 
 //        val current_score: TextView = findViewById<TextView>(R.id.currentScoreDisplay)
 //        current_score.text = "目前得分：${getter_score()}"
-        val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
-        background_score.text = "目前得分：${getter_score()} \n Miss次数： ${getter_wrong()}"
+
 
 
         return true
@@ -502,8 +539,7 @@ class FullscreenActivity : AppCompatActivity() {
         }
 
         override fun onFinish() {
-            RestartTXT()
-            ClearCircle()
+            restart()
         }
     }
     private fun countDownTXT(FullTIme : Long, TimeStep : Long) {

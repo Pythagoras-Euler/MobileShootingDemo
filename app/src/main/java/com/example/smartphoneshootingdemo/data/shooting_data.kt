@@ -3,6 +3,7 @@ package com.example.smartphoneshootingdemo.data
 object shooting_data{
     var current_score = 0
     var current_wrong_time = -1
+    var current_num = 0
 
     fun getter_score(): Int {
         return current_score
@@ -36,8 +37,23 @@ object shooting_data{
 
     public fun reset_wrong() : Boolean
     {
-        current_wrong_time = 0;
+        current_wrong_time = -1
         return true
     }
+
+    public fun getter_num () :Int{
+        return current_num
+    }
+
+    public fun setter_num(change_num:Int)
+    {
+        current_num += change_num
+    }
+
+    public fun reset_num()
+    {
+        current_num = 0
+    }
+
 
 }
