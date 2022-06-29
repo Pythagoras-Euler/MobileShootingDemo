@@ -2,6 +2,7 @@ package com.example.smartphoneshootingdemo
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.*
@@ -14,6 +15,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MotionEventCompat
+import com.example.smartphoneshootingdemo.Activity.restartMenu
+import com.example.smartphoneshootingdemo.Activity.startMenu
 import com.example.smartphoneshootingdemo.data.BackgroundData
 import com.example.smartphoneshootingdemo.data.BackgroundData.distanceMemory
 import com.example.smartphoneshootingdemo.data.BackgroundData.getDistAverage
@@ -34,7 +37,11 @@ import java.lang.Math.abs
 import java.util.*
 import kotlin.math.sqrt
 
-
+/**
+ *
+ * @author:Gaoyu-Liu
+ *
+ */
 
 //TODO 平均用时 平均距离 十个倒计时
 
@@ -47,6 +54,11 @@ class FullscreenActivity : AppCompatActivity() {
     var FullTime:Long = 3000
     val TimeStep:Long = 1000
     val TargetStep: Int = 10
+
+    var lastScore = 0
+    var lastWrong = 0
+    var distAvg = 0.toDouble()
+    var timeAvg = 0.toDouble()
 
 
     private var mCircleCanvas //  定义一个画布类
@@ -289,11 +301,16 @@ class FullscreenActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     fun RestartTXT() {
-        val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
+        lastScore = getter_score()
+        lastWrong = getter_wrong()
+        distAvg = getDistAverage()
+        timeAvg = getTimeAverage()
+
 
         val distanceAvgDisplay :String = String.format("%.5f",getDistAverage())
         val timeAvgDisplay :String = String.format("%.3f",getTimeAverage())
 
+        val background_score: TextView = findViewById<TextView>(R.id.fullscreen_content)
         background_score.text = "上次得分：${getter_score()}\nmiss次数：${getter_wrong()}"
         Toast.makeText(this@FullscreenActivity, "计数已清空 上次得分：${getter_score()}, miss次数：${getter_wrong()}", Toast.LENGTH_SHORT)
             .show()
@@ -302,6 +319,8 @@ class FullscreenActivity : AppCompatActivity() {
 //        current_score.text = "目前得分：${getter_score()}"//按任意处开始
         current_score.text = "平均误差：${distanceAvgDisplay}\n总用时：${timeAvgDisplay}"
 //        countDownTXT(30000,1000)
+        toRestartMenu()
+
         reset_num()
         reset_wrong()
 
@@ -557,13 +576,31 @@ class FullscreenActivity : AppCompatActivity() {
             }
 
             override fun onFinish() {
-                RestartTXT()
+
                 ClearCircle()
+                RestartTXT()
             }
         }.start()
 
     }
 
+    public fun toStartMenu(){
+
+        var intent = Intent(this, startMenu::class.java)
+        startActivity(intent)
+    }
+
+    public fun toRestartMenu(){
+
+        var intent = Intent(this, restartMenu::class.java)
+
+        intent.putExtra("last Score", lastScore)
+        intent.putExtra("last Wrong", lastWrong)
+        intent.putExtra("distance Average", distAvg)
+        intent.putExtra("time Average", timeAvg)
+
+        startActivity(intent)
+    }
 }
 
     interface ActivityFullscreenBinding {

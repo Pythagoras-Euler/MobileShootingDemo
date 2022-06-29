@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:screenOrientation="landscape"
     android:configChanges="orientation|keyboardHidden|screenSize"
@@ -7,7 +8,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_white"
     android:theme="@style/ThemeOverlay.SmartphoneShootingDemo.FullscreenContainer"
-    tools:context=".Activity.startMenu">
+    tools:context=".Activity.restartMenu">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
@@ -18,7 +19,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:keepScreenOn="true"
-        android:text="@string/dummy_content0"
+        android:text="@string/dummy_content"
         android:textColor="?attr/fullscreenTextColor"
         android:textSize="50sp"
         android:textStyle="bold" />
@@ -40,15 +41,41 @@
             tools:ignore="UselessParent">
 
             <Button
-                android:id="@+id/start_button"
+                android:id="@+id/dummy_button"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="startButtonClicked"
+                android:onClick="restartButtonClicked"
                 android:text="@string/dummy_button" />
 
         </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/data_display"
+                android:layout_width="300dp"
+                android:layout_height="98dp"
+                android:layout_marginStart="300dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="300dp"
+                android:layout_marginBottom="300dp"
+                android:gravity="center"
+                android:text="按任意键开始"
+                android:textColor="#FFC107"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.506"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                tools:text="当前分数" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
 
 </FrameLayout>

@@ -3,7 +3,7 @@ import java.util.ArrayList
 
 
 object BackgroundData {
-
+//TODO bug:时间计算未清零，导致总用时不准确
 
         public val distanceMemory:MutableList<Double>  = ArrayList()
         public var timeMemory:MutableList<Double> = ArrayList()
